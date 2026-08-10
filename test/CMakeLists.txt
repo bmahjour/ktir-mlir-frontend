@@ -1,3 +1,5 @@
+llvm_canonicalize_cmake_booleans(KTIR_ENABLE_PYTHON_BINDINGS)
+
 configure_lit_site_cfg(
         lit.site.cfg.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg.py
@@ -9,15 +11,18 @@ set(KTIR_TEST_DEPENDS
   ktir-opt
   FileCheck
 )
+if(KTIR_ENABLE_PYTHON_BINDINGS)
+  list(APPEND KTIR_TEST_DEPENDS KTIRPythonModules)
+endif()
 
 add_lit_testsuite(check-ktir "Running the KTIR regression tests"
     ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS 
+  DEPENDS
     ${KTIR_TEST_DEPENDS}
 )
 set_target_properties(check-ktir PROPERTIES FOLDER "Tests")
 
-add_lit_testsuites(KTIR 
+add_lit_testsuites(KTIR
     ${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS ${KTIR_TEST_DEPENDS}
   BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}

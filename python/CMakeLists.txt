@@ -17,6 +17,8 @@ declare_mlir_python_sources(KTIRPythonSources
   ROOT_DIR "${PYTHON_ROOT_DIR}"
   SOURCES
     __init__.py
+    tools/__init__.py
+    tools/__main__.py
 )
 if (MLIR_PYTHON_STUBGEN_ENABLED)
   declare_mlir_python_sources(KTIRPythonSources.type_stubs
@@ -35,10 +37,11 @@ declare_mlir_python_sources(KTIRPythonExtensions
 declare_mlir_dialect_python_bindings(
   ADD_TO_PARENT KTIRPythonSources.Dialects
   ROOT_DIR "${PYTHON_ROOT_DIR}"
-  TD_FILE dialects/KtdpOps.td
+  TD_FILE dialects/KTDPOps.td
   SOURCES 
     dialects/ktdp.py
   DIALECT_NAME ktdp
+  GEN_ENUM_BINDINGS
 )
 
 ################################################################################
@@ -59,11 +62,10 @@ declare_mlir_python_extension(KTIRPythonExtensions.Main
     MLIRCAPISCF
     MLIRCAPITensor
     MLIRCAPITransforms
-    KTIRKtdpCAPI
+    KTIRKTDPCAPI
   PRIVATE_LINK_LIBS
     LLVMSupport
 )
-target_link_libraries(KTIRPythonExtensions.Main INTERFACE KTIR::KtdpDialect)
 
 if(MLIR_PYTHON_STUBGEN_ENABLED)
   add_ktir_python_type_stubs(KTIRPythonExtensions.Main
