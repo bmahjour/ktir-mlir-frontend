@@ -9,25 +9,24 @@ using namespace mlir;
 using namespace mlir::ktdp;
 
 //===----------------------------------------------------------------------===//
-// SpyreMemorySpaceAttr::verify
+// MemorySpaceAttr::verify
 //===----------------------------------------------------------------------===//
 
-LogicalResult SpyreMemorySpaceAttr::verify(
+LogicalResult MemorySpaceAttr::verify(
     function_ref<InFlightDiagnostic()> emitError,
-    SpyreMemorySpaceKind value, int32_t core) {
-  // Core affinity is only meaningful for core-local memory spaces.
-  if (core == -1)
+    MemorySpaceKind kind, int32_t ct_id) {
+  // No ct_id specified — always valid.
+  if (ct_id == -1)
     return success();
 
-  if (core < 0)
-    return emitError() << "core affinity must be non-negative, but got: "
-                       << core;
+  if (ct_id < 0)
+    return emitError() << "ct_id must be non-negative, but got: " << ct_id;
 
-  if (value != SpyreMemorySpaceKind::LX) {
+  if (kind != MemorySpaceKind::ct_local) {
     return emitError()
-           << "core affinity is only valid for LX memory spaces, "
+           << "ct_id is only valid for ct_local memory spaces, "
               "but got memory space '"
-           << stringifySpyreMemorySpaceKind(value) << "' with core = " << core;
+           << stringifyMemorySpaceKind(kind) << "' with ct_id = " << ct_id;
   }
   return success();
 }

@@ -54,18 +54,6 @@ class Ktdp_Op<string mnemonic, list<Trait> traits = []> :
 }
 
 //===----------------------------------------------------------------------===//
-// Memory space attribute constraint (PR #73 style)
-//===----------------------------------------------------------------------===//
-
-def Ktdp_MemorySpaceAttrConstraint
-    : Attr<CPred<"::llvm::isa<::mlir::ktdp::KtdpMemorySpaceAttr>($_self)">,
-           "KtdpMemorySpaceAttr"> {
-  let storageType = "::mlir::Attribute";
-  let returnType  = "::mlir::ktdp::KtdpMemorySpaceAttr";
-  let convertFromStorage = "::llvm::cast<::mlir::ktdp::KtdpMemorySpaceAttr>($_self)";
-}
-
-//===----------------------------------------------------------------------===//
 // Operations
 //===----------------------------------------------------------------------===//
 
@@ -319,7 +307,7 @@ def KTDP_ConstructMemoryViewOp : Ktdp_Op<"construct_memory_view", [
       `coordinate_set` integer set are bound to variables in the `sizes` operand,
       from left-to-right in a one-to-one fashion.
 
-      The `memory_space` attribute describes the *physical memory space*
+      The `memory_space` attribute describes the logical memory space
       associated with return value (e.g., a memref view).
 
       Conceptually, this operation separates *memory interpretation* from
@@ -331,7 +319,7 @@ def KTDP_ConstructMemoryViewOp : Ktdp_Op<"construct_memory_view", [
       ```
         #set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0, d1 >= 0, -d1 + 64 >= 0)>
         %A_view = ktdp.construct_memory_view %A_start_address, sizes: [32, 64], strides: [64, 1] {
-            coordinate_set = #set, memory_space = #ktdp.spyre_memory_space<HBM>
+            coordinate_set = #set, memory_space = #ktdp.memory_space<global>
         } : memref<32x64xf16>
       ```
     }];
@@ -341,7 +329,7 @@ def KTDP_ConstructMemoryViewOp : Ktdp_Op<"construct_memory_view", [
                        Variadic<Index>:$strides,
                        DenseI64ArrayAttr:$static_sizes,
                        DenseI64ArrayAttr:$static_strides,
-                       Ktdp_MemorySpaceAttrConstraint:$memory_space,
+                       Ktdp_MemorySpaceAttr:$memory_space,
                        Builtin_IntegerSetAttr:$coordinate_set);
   let results = (outs AnyMemRef:$result);
 

@@ -12,15 +12,15 @@
 // CHECK-NEXT:     %[[VAL_4:.*]] = arith.constant 18432 : index
 // CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.get_compute_tile_id : index
 // CHECK-NEXT:     %[[VAL_6:.*]] = arith.muli %[[VAL_5]], %[[VAL_1]] : index
-// CHECK-NEXT:     %[[VAL_7:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [96, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_1]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<96x64xf16>
+// CHECK-NEXT:     %[[VAL_7:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [96, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_1]], memory_space = #ktdp.memory_space<global>} : memref<96x64xf16>
 // CHECK-NEXT:     %[[VAL_8:.*]] = ktdp.construct_access_tile %[[VAL_7]]{{\[}}%[[VAL_6]], %[[VAL_0]]] {access_tile_order = #[[$ATTR_0]], access_tile_set = #[[$ATTR_2]]} : memref<96x64xf16> -> !ktdp.access_tile<3x64xindex>
-// CHECK-NEXT:     %[[VAL_9:.*]] = ktdp.construct_memory_view %[[VAL_3]], sizes: [96, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_1]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<96x64xf16>
+// CHECK-NEXT:     %[[VAL_9:.*]] = ktdp.construct_memory_view %[[VAL_3]], sizes: [96, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_1]], memory_space = #ktdp.memory_space<global>} : memref<96x64xf16>
 // CHECK-NEXT:     %[[VAL_10:.*]] = ktdp.construct_access_tile %[[VAL_9]]{{\[}}%[[VAL_6]], %[[VAL_0]]] {access_tile_order = #[[$ATTR_0]], access_tile_set = #[[$ATTR_2]]} : memref<96x64xf16> -> !ktdp.access_tile<3x64xindex>
 // CHECK-NEXT:     %[[VAL_11:.*]] = ktdp.load %[[VAL_8]] : <3x64xindex> -> tensor<3x64xf16>
 // CHECK-NEXT:     %[[VAL_12:.*]] = ktdp.load %[[VAL_10]] : <3x64xindex> -> tensor<3x64xf16>
 // CHECK-NEXT:     %[[VAL_13:.*]] = tensor.empty() : tensor<3x64xf16>
 // CHECK-NEXT:     %[[VAL_14:.*]] = linalg.add ins(%[[VAL_11]], %[[VAL_12]] : tensor<3x64xf16>, tensor<3x64xf16>) outs(%[[VAL_13]] : tensor<3x64xf16>) -> tensor<3x64xf16>
-// CHECK-NEXT:     %[[VAL_15:.*]] = ktdp.construct_memory_view %[[VAL_4]], sizes: [96, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_1]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<96x64xf16>
+// CHECK-NEXT:     %[[VAL_15:.*]] = ktdp.construct_memory_view %[[VAL_4]], sizes: [96, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_1]], memory_space = #ktdp.memory_space<global>} : memref<96x64xf16>
 // CHECK-NEXT:     %[[VAL_16:.*]] = ktdp.construct_access_tile %[[VAL_15]]{{\[}}%[[VAL_6]], %[[VAL_0]]] {access_tile_order = #[[$ATTR_0]], access_tile_set = #[[$ATTR_2]]} : memref<96x64xf16> -> !ktdp.access_tile<3x64xindex>
 // CHECK-NEXT:     ktdp.store %[[VAL_14]], %[[VAL_16]] : tensor<3x64xf16>, <3x64xindex>
 // CHECK-NEXT:     return
@@ -44,7 +44,7 @@ module {
     // Construct a memory view of A from a given address
     %A_view = ktdp.construct_memory_view %A_start_address, sizes: [96, 64], strides: [64, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 95 >= 0, d1 >= 0, -d1 + 63 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<96x64xf16>
 
     // Construct an access tile set from the memory view of A
@@ -56,7 +56,7 @@ module {
     // Construct a memory view of B from a given address
     %B_view = ktdp.construct_memory_view %B_start_address, sizes: [96, 64], strides: [64, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 95 >= 0, d1 >= 0, -d1 + 63 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<96x64xf16>
 
     // Construct an access tile set from the memory view of B
@@ -78,7 +78,7 @@ module {
     // Construct a memory view of C from a given address
     %C_view = ktdp.construct_memory_view %C_start_address, sizes: [96, 64], strides: [64, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 95 >= 0, d1 >= 0, -d1 + 63 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<96x64xf16>
 
     // Construct an access tile set from the memory view of C

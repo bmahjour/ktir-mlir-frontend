@@ -3,8 +3,7 @@
 // Attribute definitions for the ktdp dialect.
 //
 // Hierarchy:
-//   KtdpMemorySpaceAttr  (abstract base / AttrInterface)
-//     +-- SpyreMemorySpaceAttr  (concrete, mnemonic: spyre_memory_space)
+//   MemorySpaceAttr  (concrete, mnemonic: memory_space)
 //
 //===----------------------------------------------------------------------===//
 
@@ -12,7 +11,6 @@
 #define KTDP_ATTRS_TD
 
 include "ktir/Dialect/KTDP/KTDPDialect.td"
-include "ktir/Dialect/KTDP/KTDPAttrInterfaces.td"
 include "mlir/IR/AttrTypeBase.td"
 include "mlir/IR/EnumAttr.td"
 
@@ -20,66 +18,65 @@ include "mlir/IR/EnumAttr.td"
 // Memory-space enum
 //===----------------------------------------------------------------------===//
 
-def Ktdp_SpyreMemorySpaceKind : I32EnumAttr<
-    "SpyreMemorySpaceKind",
-    "Spyre memory-space enum",
+def Ktdp_MemorySpaceKind : I32EnumAttr<
+    "MemorySpaceKind",
+    "KTDP memory-space enum",
     [
-      I32EnumAttrCase<"unspecified", 0, "unspecified">,
-      I32EnumAttrCase<"LX",  1, "LX">,
-      I32EnumAttrCase<"HBM", 2, "HBM">
+      I32EnumAttrCase<"global",   0, "global">,
+      I32EnumAttrCase<"ct_local", 1, "ct_local">
     ]> {
   let cppNamespace = "::mlir::ktdp";
   let genSpecializedAttr = 0;
 }
 
 //===----------------------------------------------------------------------===//
-// SpyreMemorySpaceAttr -- concrete Spyre target memory-space attribute
+// MemorySpaceAttr -- concrete memory-space attribute
 //
 // Assembly syntax:
-//   #ktdp.spyre_memory_space<HBM>
-//   #ktdp.spyre_memory_space<LX, core = 7>
-//   #ktdp.spyre_memory_space<unspecified>
+//   #ktdp.memory_space<global>
+//   #ktdp.memory_space<ct_local>
+//   #ktdp.memory_space<ct_local, ct_id = 7>
 //
 // Parameters:
-//   value  -- SpyreMemorySpaceKind enum (unspecified | LX | HBM)
-//   core   -- optional core affinity (default -1 = unspecified)
+//   kind   -- MemorySpaceKind enum (global | ct_local)
+//   ct_id  -- optional compute-tile ID (default -1 = unspecified);
+//             only valid for ct_local
 //===----------------------------------------------------------------------===//
 
-def Ktdp_SpyreMemorySpaceAttr
-    : AttrDef<Ktdp_Dialect, "SpyreMemorySpace",
-              [DeclareAttrInterfaceMethods<Ktdp_MemorySpaceAttr>]> {
-  let mnemonic = "spyre_memory_space";
-  let summary = "Spyre target memory-space descriptor";
+def Ktdp_MemorySpaceAttr
+    : AttrDef<Ktdp_Dialect, "MemorySpace"> {
+  let mnemonic = "memory_space";
+  let summary = "Data-parallel memory-space descriptor";
   let description = [{
-    Identifies a physical memory space on the Spyre target.
+    Identifies a logical memory space in the data-parallel abstraction.
 
     Valid values:
-    - `unspecified` -- memory space not yet determined.
-    - `LX`  -- shared on-chip scratchpad (cross-core accessible).
-    - `HBM` -- high-bandwidth off-chip memory.
+    - `global`   -- memory visible to all compute tiles.
+    - `ct_local` -- memory local to a single compute tile.
 
-    The optional `core` parameter identifies which compute core's local
-    memory is referenced (relevant for `LX`).
+    The optional `ct_id` parameter identifies which compute tile's local
+    memory is referenced (only valid for `ct_local`).
 
     Examples:
     ```mlir
-    memory_space = #ktdp.spyre_memory_space<HBM>
-    memory_space = #ktdp.spyre_memory_space<LX, core = 7>
+    memory_space = #ktdp.memory_space<global>
+    memory_space = #ktdp.memory_space<ct_local>
+    memory_space = #ktdp.memory_space<ct_local, ct_id = 7>
     ```
   }];
 
   let parameters = (ins
-    "::mlir::ktdp::SpyreMemorySpaceKind":$value,
-    DefaultValuedParameter<"int32_t", "-1">:$core
+    "::mlir::ktdp::MemorySpaceKind":$kind,
+    DefaultValuedParameter<"int32_t", "-1">:$ct_id
   );
 
-  let assemblyFormat = "`<` $value (`,` `core` `=` $core^)? `>`";
+  let assemblyFormat = "`<` $kind (`,` `ct_id` `=` $ct_id^)? `>`";
 
   let genVerifyDecl = 1;
 
   let extraClassDeclaration = [{
-    /// Return true if a core affinity is specified.
-    bool hasCoreSpecified() const { return getCore() != -1; }
+    /// Return true if a compute-tile ID is specified.
+    bool hasCTIdSpecified() const { return getCtId() != -1; }
   }];
 }
 

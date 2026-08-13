@@ -20,8 +20,8 @@
 // CHECK-LABEL:   func.func @test_mixed_subscripts_identity_order() {
 // CHECK-NEXT:     %[[VAL_0:.*]] = arith.constant 10000 : index
 // CHECK-NEXT:     %[[VAL_1:.*]] = arith.constant 20000 : index
-// CHECK-NEXT:     %[[VAL_2:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [8], strides: [1] {coordinate_set = #[[$ATTR_4]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<8xi32>
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [100, 16], strides: [16, 1] {coordinate_set = #[[$ATTR_5]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<100x16xf16>
+// CHECK-NEXT:     %[[VAL_2:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [8], strides: [1] {coordinate_set = #[[$ATTR_4]], memory_space = #ktdp.memory_space<global>} : memref<8xi32>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [100, 16], strides: [16, 1] {coordinate_set = #[[$ATTR_5]], memory_space = #ktdp.memory_space<global>} : memref<100x16xf16>
 // CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_indirect_access_tile intermediate_variables(%[[VAL_5:.*]], %[[VAL_6:.*]]) %[[VAL_3]][(%[[VAL_5]]), ind(%[[VAL_2]]{{\[}}%[[VAL_6]]])] {variables_space_order = #[[$ATTR_0]], variables_space_set = #[[$ATTR_6]]} : memref<100x16xf16>, memref<8xi32> -> !ktdp.access_tile<8x16xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
@@ -29,8 +29,8 @@
 // CHECK-LABEL:   func.func @test_mixed_subscripts_transpose_order() {
 // CHECK-NEXT:     %[[VAL_0:.*]] = arith.constant 10000 : index
 // CHECK-NEXT:     %[[VAL_1:.*]] = arith.constant 20000 : index
-// CHECK-NEXT:     %[[VAL_2:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [8], strides: [1] {coordinate_set = #[[$ATTR_4]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<8xi32>
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [100, 16], strides: [16, 1] {coordinate_set = #[[$ATTR_5]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<100x16xf16>
+// CHECK-NEXT:     %[[VAL_2:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [8], strides: [1] {coordinate_set = #[[$ATTR_4]], memory_space = #ktdp.memory_space<global>} : memref<8xi32>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [100, 16], strides: [16, 1] {coordinate_set = #[[$ATTR_5]], memory_space = #ktdp.memory_space<global>} : memref<100x16xf16>
 // CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_indirect_access_tile intermediate_variables(%[[VAL_5:.*]], %[[VAL_6:.*]]) %[[VAL_3]][ind(%[[VAL_2]]{{\[}}%[[VAL_5]]]), (%[[VAL_6]])] {variables_space_order = #[[$ATTR_1]], variables_space_set = #[[$ATTR_6]]} : memref<100x16xf16>, memref<8xi32> -> !ktdp.access_tile<16x8xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
@@ -38,8 +38,8 @@
 // CHECK-LABEL:   func.func @test_complex_affine_expressions() {
 // CHECK-NEXT:     %[[VAL_0:.*]] = arith.constant 10000 : index
 // CHECK-NEXT:     %[[VAL_1:.*]] = arith.constant 20000 : index
-// CHECK-NEXT:     %[[VAL_2:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [4, 32], strides: [32, 1] {coordinate_set = #[[$ATTR_7]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<4x32xi32>
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [1000, 8, 128], strides: [1024, 128, 1] {coordinate_set = #[[$ATTR_8]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<1000x8x128xf16>
+// CHECK-NEXT:     %[[VAL_2:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [4, 32], strides: [32, 1] {coordinate_set = #[[$ATTR_7]], memory_space = #ktdp.memory_space<global>} : memref<4x32xi32>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [1000, 8, 128], strides: [1024, 128, 1] {coordinate_set = #[[$ATTR_8]], memory_space = #ktdp.memory_space<global>} : memref<1000x8x128xf16>
 // CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_indirect_access_tile intermediate_variables(%[[VAL_5:.*]], %[[VAL_6:.*]], %[[VAL_7:.*]]) %[[VAL_3]][ind(%[[VAL_2]]{{\[}}%[[VAL_5]], %[[VAL_7]] floordiv 64]), (%[[VAL_6]]), (%[[VAL_7]] mod 64)] {variables_space_order = #[[$ATTR_2]], variables_space_set = #[[$ATTR_9]]} : memref<1000x8x128xf16>, memref<4x32xi32> -> !ktdp.access_tile<4x8x128xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
@@ -48,9 +48,9 @@
 // CHECK-NEXT:     %[[VAL_0:.*]] = arith.constant 10000 : index
 // CHECK-NEXT:     %[[VAL_1:.*]] = arith.constant 20000 : index
 // CHECK-NEXT:     %[[VAL_2:.*]] = arith.constant 30000 : index
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [4, 8], strides: [8, 1] {coordinate_set = #[[$ATTR_10]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<4x8xi32>
-// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [4, 8], strides: [8, 1] {coordinate_set = #[[$ATTR_10]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<4x8xi32>
-// CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [100, 100], strides: [100, 1] {coordinate_set = #[[$ATTR_11]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<100x100xf16>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [4, 8], strides: [8, 1] {coordinate_set = #[[$ATTR_10]], memory_space = #ktdp.memory_space<global>} : memref<4x8xi32>
+// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [4, 8], strides: [8, 1] {coordinate_set = #[[$ATTR_10]], memory_space = #ktdp.memory_space<global>} : memref<4x8xi32>
+// CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_memory_view %[[VAL_0]], sizes: [100, 100], strides: [100, 1] {coordinate_set = #[[$ATTR_11]], memory_space = #ktdp.memory_space<global>} : memref<100x100xf16>
 // CHECK-NEXT:     %[[VAL_6:.*]] = ktdp.construct_indirect_access_tile intermediate_variables(%[[VAL_7:.*]], %[[VAL_8:.*]]) %[[VAL_5]][ind(%[[VAL_3]]{{\[}}%[[VAL_7]], %[[VAL_8]]]), ind(%[[VAL_4]]{{\[}}%[[VAL_7]], %[[VAL_8]]])] {variables_space_order = #[[$ATTR_0]], variables_space_set = #[[$ATTR_10]]} : memref<100x100xf16>, memref<4x8xi32>, memref<4x8xi32> -> !ktdp.access_tile<4x8xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
@@ -58,8 +58,8 @@
 // CHECK:   func.func @test_with_captured_variables(%[[VAL_0:.*]]: index) {
 // CHECK-NEXT:     %[[VAL_1:.*]] = arith.constant 10000 : index
 // CHECK-NEXT:     %[[VAL_2:.*]] = arith.constant 20000 : index
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [4, 8], strides: [8, 1] {coordinate_set = #[[$ATTR_10]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<4x8xi32>
-// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [100, 100], strides: [100, 1] {coordinate_set = #[[$ATTR_11]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<100x100xf16>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [4, 8], strides: [8, 1] {coordinate_set = #[[$ATTR_10]], memory_space = #ktdp.memory_space<global>} : memref<4x8xi32>
+// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [100, 100], strides: [100, 1] {coordinate_set = #[[$ATTR_11]], memory_space = #ktdp.memory_space<global>} : memref<100x100xf16>
 // CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_indirect_access_tile intermediate_variables(%[[VAL_6:.*]], %[[VAL_7:.*]]) %[[VAL_4]][ind(%[[VAL_3]]{{\[}}%[[VAL_0]] + %[[VAL_6]], %[[VAL_7]]]), (%[[VAL_7]])] {variables_space_order = #[[$ATTR_0]], variables_space_set = #[[$ATTR_10]]} : memref<100x100xf16>, memref<4x8xi32> -> !ktdp.access_tile<4x8xindex>
 // CHECK-NEXT:     %[[VAL_8:.*]] = ktdp.construct_indirect_access_tile intermediate_variables() %[[VAL_4]][ind(%[[VAL_3]]{{\[}}%[[VAL_0]], 0]), (%[[VAL_0]])] {variables_space_order = #[[$ATTR_3]], variables_space_set = #[[$ATTR_12]]} : memref<100x100xf16>, memref<4x8xi32> -> !ktdp.access_tile<index>
 // CHECK-NEXT:     return
@@ -68,8 +68,8 @@
 // CHECK:   func.func @test_with_single_symbol(%[[VAL_0:.*]]: index) {
 // CHECK-NEXT:     %[[VAL_1:.*]] = arith.constant 10000 : index
 // CHECK-NEXT:     %[[VAL_2:.*]] = arith.constant 20000 : index
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [8], strides: [1] {coordinate_set = #[[$ATTR_4]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<8xi32>
-// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [100, 16], strides: [16, 1] {coordinate_set = #[[$ATTR_5]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<100x16xf16>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [8], strides: [1] {coordinate_set = #[[$ATTR_4]], memory_space = #ktdp.memory_space<global>} : memref<8xi32>
+// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_1]], sizes: [100, 16], strides: [16, 1] {coordinate_set = #[[$ATTR_5]], memory_space = #ktdp.memory_space<global>} : memref<100x16xf16>
 // CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_indirect_access_tile intermediate_variables(%[[VAL_6:.*]], %[[VAL_7:.*]]) %[[VAL_4]][(%[[VAL_6]]), ind(%[[VAL_3]]{{\[}}%[[VAL_7]]])] symbols(%[[VAL_0]]) {variables_space_order = #[[$ATTR_0]], variables_space_set = #[[$ATTR_13]]} : memref<100x16xf16>, memref<8xi32> -> !ktdp.access_tile<?x16xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
@@ -113,13 +113,13 @@ func.func @test_mixed_subscripts_identity_order() {
     %idx_view = ktdp.construct_memory_view %addr_idx,
         sizes: [8], strides: [1] {
         coordinate_set = #coord_set_1d_8,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<8xi32>
     
     %x_view = ktdp.construct_memory_view %addr_x,
         sizes: [100, 16], strides: [16, 1] {
         coordinate_set = #coord_set_2d_100x16,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<100x16xf16>
     
     %tile_A = ktdp.construct_indirect_access_tile
@@ -140,13 +140,13 @@ func.func @test_mixed_subscripts_transpose_order() {
     %idx_view = ktdp.construct_memory_view %addr_idx,
         sizes: [8], strides: [1] {
         coordinate_set = #coord_set_1d_8,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<8xi32>
     
     %x_view = ktdp.construct_memory_view %addr_x,
         sizes: [100, 16], strides: [16, 1] {
         coordinate_set = #coord_set_2d_100x16,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<100x16xf16>
     
     %tile_B = ktdp.construct_indirect_access_tile
@@ -167,13 +167,13 @@ func.func @test_complex_affine_expressions() {
     %idx_view = ktdp.construct_memory_view %addr_idx,
         sizes: [4, 32], strides: [32, 1] {
         coordinate_set = #coord_set_2d_4x32,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<4x32xi32>
     
     %x_view = ktdp.construct_memory_view %addr_x,
         sizes: [1000, 8, 128], strides: [1024, 128, 1] {
         coordinate_set = #coord_set_3d_1000x8x128,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<1000x8x128xf16>
     
     %tile = ktdp.construct_indirect_access_tile
@@ -195,19 +195,19 @@ func.func @test_multiple_indirect_dimensions() {
     %idx1_view = ktdp.construct_memory_view %addr_idx1,
         sizes: [4, 8], strides: [8, 1] {
         coordinate_set = #var_space_2d_4x8,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<4x8xi32>
     
     %idx2_view = ktdp.construct_memory_view %addr_idx2,
         sizes: [4, 8], strides: [8, 1] {
         coordinate_set = #var_space_2d_4x8,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<4x8xi32>
     
     %x_view = ktdp.construct_memory_view %addr_x,
         sizes: [100, 100], strides: [100, 1] {
         coordinate_set = #coord_set_2d_100x100,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<100x100xf16>
 
     %tile = ktdp.construct_indirect_access_tile
@@ -228,13 +228,13 @@ func.func @test_with_captured_variables(%offset: index) {
     %idx_view = ktdp.construct_memory_view %addr_idx,
         sizes: [4, 8], strides: [8, 1] {
         coordinate_set = #var_space_2d_4x8,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<4x8xi32>
     
     %x_view = ktdp.construct_memory_view %addr_x,
         sizes: [100, 100], strides: [100, 1] {
         coordinate_set = #coord_set_2d_100x100,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<100x100xf16>
     
     %tile = ktdp.construct_indirect_access_tile
@@ -261,13 +261,13 @@ func.func @test_with_single_symbol(%tile_rows: index) {
     %idx_view = ktdp.construct_memory_view %addr_idx,
         sizes: [8], strides: [1] {
         coordinate_set = affine_set<(d0) : (d0 >= 0, -d0 + 7 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<8xi32>
     
     %x_view = ktdp.construct_memory_view %addr_x,
         sizes: [100, 16], strides: [16, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 99 >= 0, d1 >= 0, -d1 + 15 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<100x16xf16>
     
     // Indirect access tile with symbolic row count: 0 <= i < tile_rows, 0 <= j < 16

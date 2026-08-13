@@ -44,22 +44,22 @@ func.func @test_runtime_arg_full(%arg0: !ktdp.runtime_arg<i32, granularity=4, up
 // Attributes
 // -----
 
-// CHECK-LABEL: func.func @test_spyre_memory_space_hbm
-// CHECK: memory_space = #ktdp.spyre_memory_space<HBM>
+// CHECK-LABEL: func.func @test_memory_space_global
+// CHECK: memory_space = #ktdp.memory_space<global>
 #set0 = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0, d1 >= 0, -d1 + 63 >= 0)>
-func.func @test_spyre_memory_space_hbm(%addr: index) -> memref<32x64xf16> {
+func.func @test_memory_space_global(%addr: index) -> memref<32x64xf16> {
   %view = ktdp.construct_memory_view %addr, sizes: [32, 64], strides: [64, 1] {
-    coordinate_set = #set0, memory_space = #ktdp.spyre_memory_space<HBM>
+    coordinate_set = #set0, memory_space = #ktdp.memory_space<global>
   } : memref<32x64xf16>
   return %view : memref<32x64xf16>
 }
 
-// CHECK-LABEL: func.func @test_spyre_memory_space_lx_core
-// CHECK: memory_space = #ktdp.spyre_memory_space<LX, core = 7>
+// CHECK-LABEL: func.func @test_memory_space_ct_local
+// CHECK: memory_space = #ktdp.memory_space<ct_local, ct_id = 7>
 #set1 = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0, d1 >= 0, -d1 + 63 >= 0)>
-func.func @test_spyre_memory_space_lx_core(%addr: index) -> memref<32x64xf16> {
+func.func @test_memory_space_ct_local(%addr: index) -> memref<32x64xf16> {
   %view = ktdp.construct_memory_view %addr, sizes: [32, 64], strides: [64, 1] {
-    coordinate_set = #set1, memory_space = #ktdp.spyre_memory_space<LX, core = 7>
+    coordinate_set = #set1, memory_space = #ktdp.memory_space<ct_local, ct_id = 7>
   } : memref<32x64xf16>
   return %view : memref<32x64xf16>
 }
@@ -88,7 +88,7 @@ func.func @test_get_compute_tile_id_multi() -> (index, index) {
 #set2 = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0, d1 >= 0, -d1 + 63 >= 0)>
 func.func @test_construct_memory_view(%addr: index) -> memref<32x64xf16> {
   %view = ktdp.construct_memory_view %addr, sizes: [32, 64], strides: [64, 1] {
-    coordinate_set = #set2, memory_space = #ktdp.spyre_memory_space<HBM>
+    coordinate_set = #set2, memory_space = #ktdp.memory_space<global>
   } : memref<32x64xf16>
   return %view : memref<32x64xf16>
 }

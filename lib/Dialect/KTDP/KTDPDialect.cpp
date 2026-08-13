@@ -21,9 +21,6 @@
 // Generated enum definitions
 #include "ktir/Dialect/KTDP/KTDPEnums.cpp.inc"
 
-// Generated attr interface definitions
-#include "ktir/Dialect/KTDP/KTDPAttrInterfaces.cpp.inc"
-
 // Generated attribute definitions
 #define GET_ATTRDEF_CLASSES
 #include "ktir/Dialect/KTDP/KTDPAttrs.cpp.inc"
@@ -45,6 +42,6 @@ void KtdpDialect::initialize() {
 #include "ktir/Dialect/KTDP/KTDPTypes.cpp.inc"
   >();
   addAttributes<
-    SpyreMemorySpaceAttr
+    MemorySpaceAttr
   >();
 }
