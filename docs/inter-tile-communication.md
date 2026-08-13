@@ -485,7 +485,7 @@ ktdp.store %C, ...
 
 #### 8.2.1 Full IR — single-group reduce (96×64)
 
-**Layout and partitioning.** `A` and `B` are `tensor<96x64xf16>` in HBM.
+**Layout and partitioning.** `A` and `B` are `tensor<96x64xf16>` in global memory.
 The kernel computes the column-wise sum of `A + B`, producing a
 1-D `tensor<64xf16>`.
 
@@ -516,11 +516,11 @@ module {
 
     %A_view = ktdp.construct_memory_view %A_start, sizes: [96, 64], strides: [64, 1] {
         coordinate_set = #A_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<96x64xf16>
     %B_view = ktdp.construct_memory_view %B_start, sizes: [96, 64], strides: [64, 1] {
         coordinate_set = #A_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<96x64xf16>
 
     // Identity: tensor<1x64xf16> of zeros — matches partial type T_p.
@@ -586,7 +586,7 @@ module {
 
     %E_view = ktdp.construct_memory_view %E_start, sizes: [1, 64], strides: [64, 1] {
         coordinate_set = #E_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<1x64xf16>
     %E_access = ktdp.construct_access_tile %E_view[%c0, %c0] {
         access_tile_set = #E_tile_set, access_tile_order = #identity_2d
@@ -603,7 +603,7 @@ module {
 #### 8.2.2 Full IR — multi-group reduce (128×8×12×64)
 
 **Layout and partitioning.** `A` and `B` are `tensor<128x8x12x64xf16>` in
-HBM. The four axes have distinct roles:
+global memory. The four axes have distinct roles:
 
 - Dim 0 (size 128): preserved through this op.
 - Dim 1 (size 8): the **group axis** — 8 groups.
@@ -663,12 +663,12 @@ module {
     %A_view = ktdp.construct_memory_view %A_start, sizes: [128, 8, 12, 64],
         strides: [6144, 768, 64, 1] {
         coordinate_set = #A_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<128x8x12x64xf16>
     %B_view = ktdp.construct_memory_view %B_start, sizes: [128, 8, 12, 64],
         strides: [6144, 768, 64, 1] {
         coordinate_set = #A_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<128x8x12x64xf16>
 
     // Identity: tensor<128x1x1x64xf16> of zeros — matches partial type T_p.
@@ -749,7 +749,7 @@ module {
     %E_view = ktdp.construct_memory_view %E_start, sizes: [128, 8, 4, 64],
         strides: [2048, 256, 64, 1] {
         coordinate_set = #E_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<128x8x4x64xf16>
 
     %E_access = ktdp.construct_access_tile %E_view[%c0, %g, %l, %c0] {
@@ -798,7 +798,7 @@ module {
 #### 8.3.1 Full IR — multi-group reduce-scatter (128×8×12×64)
 
 **Layout and partitioning.** `A` and `B` are `tensor<128x8x12x64xf16>`
-in HBM. The four axes have distinct roles:
+in global memory. The four axes have distinct roles:
 
 - Dim 0 (size 128): the **scatter axis** — within each group, this axis
   is split across that group's 4 tiles.
@@ -861,12 +861,12 @@ module {
     %A_view = ktdp.construct_memory_view %A_start, sizes: [128, 8, 12, 64],
         strides: [6144, 768, 64, 1] {
         coordinate_set = #A_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<128x8x12x64xf16>
     %B_view = ktdp.construct_memory_view %B_start, sizes: [128, 8, 12, 64],
         strides: [6144, 768, 64, 1] {
         coordinate_set = #A_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<128x8x12x64xf16>
 
     // Identity: tensor<128x1x1x64xf16> of zeros — matches partial type T_p.
@@ -946,7 +946,7 @@ module {
     %E_view = ktdp.construct_memory_view %E_start, sizes: [128, 8, 64],
         strides: [512, 64, 1] {
         coordinate_set = #E_view_set,
-        memory_space   = #ktdp.spyre_memory_space<HBM>
+        memory_space   = #ktdp.memory_space<global>
     } : memref<128x8x64xf16>
 
     %E_access = ktdp.construct_access_tile %E_view[%my_row_anchor, %g, %c0] {
