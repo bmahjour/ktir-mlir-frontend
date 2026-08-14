@@ -8,12 +8,13 @@
 #include <mlir/Tools/mlir-opt/MlirOptMain.h>
 
 #include "ktir/Dialect/KTDP/KTDPDialect.h"
+#include "ktir/Dialect/SpyreOp/SpyreOpDialect.h"
 
 using namespace mlir;
 
 auto main(int argc, char **argv) -> int {
   DialectRegistry registry;
-  registry.insert<ktdp::KtdpDialect>();
+  registry.insert<ktdp::KtdpDialect, spyreop::SpyreOpDialect>();
   registerAllDialects(registry);
   registerAllExtensions(registry);
 

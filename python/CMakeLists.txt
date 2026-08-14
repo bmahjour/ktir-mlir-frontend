@@ -44,6 +44,15 @@ declare_mlir_dialect_python_bindings(
   GEN_ENUM_BINDINGS
 )
 
+declare_mlir_dialect_python_bindings(
+  ADD_TO_PARENT KTIRPythonSources.Dialects
+  ROOT_DIR "${PYTHON_ROOT_DIR}"
+  TD_FILE dialects/SpyreOpOps.td
+  SOURCES 
+    dialects/spyreop.py
+  DIALECT_NAME spyreop
+)
+
 ################################################################################
 # Extensions
 ################################################################################
@@ -63,6 +72,7 @@ declare_mlir_python_extension(KTIRPythonExtensions.Main
     MLIRCAPITensor
     MLIRCAPITransforms
     KTIRKTDPCAPI
+    KTIRSpyreOpCAPI
   PRIVATE_LINK_LIBS
     LLVMSupport
 )
