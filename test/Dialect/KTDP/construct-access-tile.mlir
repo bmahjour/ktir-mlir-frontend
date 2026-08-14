@@ -11,7 +11,7 @@
 
 // CHECK:   func.func @test_affine_expr_with_transpose(%[[VAL_0:.*]]: index, %[[VAL_1:.*]]: index) {
 // CHECK-NEXT:     %[[VAL_2:.*]] = arith.constant 8000 : index
-// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [32, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_2]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<32x64xf16>
+// CHECK-NEXT:     %[[VAL_3:.*]] = ktdp.construct_memory_view %[[VAL_2]], sizes: [32, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_2]], memory_space = #ktdp.memory_space<global>} : memref<32x64xf16>
 // CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_access_tile %[[VAL_3]]{{\[}}%[[VAL_0]] * 2, %[[VAL_1]] + 4] {access_tile_order = #[[$ATTR_0]], access_tile_set = #[[$ATTR_3]]} : memref<32x64xf16> -> !ktdp.access_tile<32x16xindex>
 // CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_access_tile %[[VAL_3]]{{\[}}%[[VAL_0]] * 2, %[[VAL_1]] + 4] {access_tile_order = #[[$ATTR_1]], access_tile_set = #[[$ATTR_3]]} : memref<32x64xf16> -> !ktdp.access_tile<16x32xindex>
 // CHECK-NEXT:     return
@@ -19,14 +19,14 @@
 
 // CHECK:   func.func @test_with_single_symbol(%[[VAL_0:.*]]: index, %[[VAL_1:.*]]: index, %[[VAL_2:.*]]: index) {
 // CHECK-NEXT:     %[[VAL_3:.*]] = arith.constant 8000 : index
-// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_3]], sizes: [32, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_2]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<32x64xf16>
+// CHECK-NEXT:     %[[VAL_4:.*]] = ktdp.construct_memory_view %[[VAL_3]], sizes: [32, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_2]], memory_space = #ktdp.memory_space<global>} : memref<32x64xf16>
 // CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_access_tile %[[VAL_4]]{{\[}}%[[VAL_0]], %[[VAL_1]]] symbols(%[[VAL_2]]) {access_tile_order = #[[$ATTR_0]], access_tile_set = #[[$ATTR_4]]} : memref<32x64xf16> -> !ktdp.access_tile<?x64xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
 
 // CHECK:   func.func @test_with_two_symbols(%[[VAL_0:.*]]: index, %[[VAL_1:.*]]: index, %[[VAL_2:.*]]: index, %[[VAL_3:.*]]: index) {
 // CHECK-NEXT:     %[[VAL_4:.*]] = arith.constant 8000 : index
-// CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_memory_view %[[VAL_4]], sizes: [32, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_2]], memory_space = #ktdp.spyre_memory_space<HBM>} : memref<32x64xf16>
+// CHECK-NEXT:     %[[VAL_5:.*]] = ktdp.construct_memory_view %[[VAL_4]], sizes: [32, 64], strides: [64, 1] {coordinate_set = #[[$ATTR_2]], memory_space = #ktdp.memory_space<global>} : memref<32x64xf16>
 // CHECK-NEXT:     %[[VAL_6:.*]] = ktdp.construct_access_tile %[[VAL_5]]{{\[}}%[[VAL_0]], %[[VAL_1]]] symbols(%[[VAL_2]], %[[VAL_3]]) {access_tile_order = #[[$ATTR_0]], access_tile_set = #[[$ATTR_5]]} : memref<32x64xf16> -> !ktdp.access_tile<?x?xindex>
 // CHECK-NEXT:     return
 // CHECK-NEXT:   }
@@ -47,7 +47,7 @@ func.func @test_affine_expr_with_transpose(%i: index, %j: index) {
         sizes: [32, 64], strides: [64, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0,
                                                  d1 >= 0, -d1 + 63 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<32x64xf16>
     
     %tile_A = ktdp.construct_access_tile %view[%i * 2, %j + 4] {
@@ -72,7 +72,7 @@ func.func @test_with_single_symbol(%i: index, %j: index, %tile_size: index) {
         sizes: [32, 64], strides: [64, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0,
                                                  d1 >= 0, -d1 + 63 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<32x64xf16>
     
     // Access tile with symbolic size: 0 <= d0 < tile_size, 0 <= d1 < 64
@@ -93,7 +93,7 @@ func.func @test_with_two_symbols(%i: index, %j: index, %rows: index, %cols: inde
         sizes: [32, 64], strides: [64, 1] {
         coordinate_set = affine_set<(d0, d1) : (d0 >= 0, -d0 + 31 >= 0,
                                                  d1 >= 0, -d1 + 63 >= 0)>,
-        memory_space = #ktdp.spyre_memory_space<HBM>
+        memory_space = #ktdp.memory_space<global>
     } : memref<32x64xf16>
     
     // Access tile with dynamic shape: 0 <= d0 < rows, 0 <= d1 < cols

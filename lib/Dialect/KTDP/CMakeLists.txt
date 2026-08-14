@@ -13,7 +13,6 @@ add_ktir_library(KTIRKtdpDialect
   EXPORT_NAME KtdpDialect
 
   DEPENDS
-    KTIRKTDPAttrInterfacesIncGen
     KTIRKTDPAttrsIncGen
     KTIRKTDPIncGen
 
