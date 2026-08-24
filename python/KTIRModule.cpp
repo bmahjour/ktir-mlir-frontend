@@ -1,8 +1,18 @@
-//===- KtdpExtensionNanobind.cpp - Extension module ---------------------===//
+//===-- KTIRModule.cpp ------------------------------------------*- c++ -*-===//
 //
-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-// See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright 2026 The KTIR Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 //===----------------------------------------------------------------------===//
 
@@ -17,8 +27,14 @@
 #include "mlir/Bindings/Python/IRCore.h"
 #include "mlir/Bindings/Python/IRTypes.h"
 
+#include "Utils.h"
+
 namespace nb = nanobind;
 namespace py = mlir::python::MLIR_BINDINGS_PYTHON_DOMAIN;
+
+// Bind the C-API memory-space enum to the tablegen-generated
+// `mlir_ktdp.dialects.ktdp.MemorySpaceKind` IntEnum.
+KTIR_IMPORT_INT_ENUM_TYPECASTER(MlirKTDPMemorySpaceKind, ktdp, MemorySpaceKind);
 
 namespace mlir::python::MLIR_BINDINGS_PYTHON_DOMAIN::ktdp {
 
@@ -82,6 +98,56 @@ struct PyRuntimeArgType : PyConcreteType<PyRuntimeArgType, PyType> {
   }
 };
 
+struct PyMemorySpaceAttr : PyConcreteAttribute<PyMemorySpaceAttr> {
+  static constexpr IsAFunctionTy isaFunction = mlirAttributeIsAKTDPMemorySpaceAttr;
+  static constexpr GetTypeIDFunctionTy getTypeIdFunction =
+      mlirKTDPMemorySpaceAttrGetTypeID;
+  static constexpr const char *pyClassName = "MemorySpaceAttr";
+  using PyConcreteAttribute::PyConcreteAttribute;
+
+  static void bindDerived(ClassTy &c) {
+    // ct_id is only valid for ct_local; the attribute verifier enforces that
+    // rather than this binding duplicating the rule. Diagnostics are emitted at
+    // `loc`, so failures point at the caller.
+    c.def_static(
+        "get",
+        [](MlirKTDPMemorySpaceKind kind, std::optional<int32_t> ctId,
+              DefaultingPyLocation loc) {
+          PyMlirContext::ErrorCapture errors(loc->getContext());
+          MlirAttribute attr = mlirKTDPMemorySpaceAttrGetChecked(
+              loc, kind, ctId.value_or(-1));
+          if (mlirAttributeIsNull(attr))
+            throw MLIRError("Invalid memory space attribute", errors.take());
+          return PyMemorySpaceAttr(loc->getContext(), attr);
+        },
+        nb::arg("kind"), nb::arg("ct_id") = nb::none(),
+        nb::arg("loc") = nb::none(),
+        "Gets a uniqued ktdp.memory_space attribute");
+    c.def_static(
+        "get_unchecked",
+        [](MlirKTDPMemorySpaceKind kind, std::optional<int32_t> ctId,
+              DefaultingPyMlirContext context) {
+          PyMlirContextRef ctxRef = context->getRef();
+          PyMlirContext::ErrorCapture errors(ctxRef);
+          MlirAttribute attr = mlirKTDPMemorySpaceAttrGet(
+              ctxRef->get(), kind, ctId.value_or(-1));
+          if (mlirAttributeIsNull(attr))
+            throw MLIRError("Invalid memory space attribute", errors.take());
+          return PyMemorySpaceAttr(ctxRef, attr);
+        },
+        nb::arg("kind"), nb::arg("ct_id") = nb::none(),
+        nb::arg("context") = nb::none(),
+        "Gets a uniqued ktdp.memory_space attribute");
+    c.def_prop_ro("kind", [](PyMemorySpaceAttr &self) {
+      return mlirKTDPMemorySpaceAttrGetKind(self);
+    });
+    c.def_prop_ro("ct_id", [](PyMemorySpaceAttr &self) -> std::optional<int32_t> {
+      int32_t v = mlirKTDPMemorySpaceAttrGetCtId(self);
+      return v >= 0 ? std::optional<int32_t>(v) : std::nullopt;
+    });
+  }
+};
+
 } // namespace mlir::python::MLIR_BINDINGS_PYTHON_DOMAIN::ktdp
 
 //===----------------------------------------------------------------------===//
@@ -124,4 +190,5 @@ NB_MODULE(_ktir, m) {
   auto ktdp = m.def_submodule("ktdp");
   py::ktdp::PyAccessTileType::bind(ktdp);
   py::ktdp::PyRuntimeArgType::bind(ktdp);
+  py::ktdp::PyMemorySpaceAttr::bind(ktdp);
 }
