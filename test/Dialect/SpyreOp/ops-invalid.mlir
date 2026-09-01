@@ -5,3 +5,56 @@ func.func @softplus_beta_zero(%arg0: f16) {
   spyreop.softplus %arg0 beta 0.0 threshold 0.0 : f16
   return
 }
+
+// -----
+
+func.func @layernormnorm_integer(%arg0: i32) {
+  // expected-error@+1 {{operand #0 must be 16-bit float or IBM df16 float or 32-bit float, but got 'i32'}}
+  spyreop.layernormnorm %arg0 squares %arg0 scale %arg0 weight %arg0 bias %arg0 : i32
+  return
+}
+
+// -----
+
+func.func @exx2_integer(%arg0: i32) {
+  // expected-error@+1 {{operand #0 must be 16-bit float or IBM df16 float or 32-bit float, but got 'i32'}}
+  spyreop.exx2 %arg0 : i32
+  return
+}
+
+// -----
+
+func.func @exx2_fused_plain_result(%arg0: f16) {
+  // expected-error@+1 {{result #0 must be A pair of df16 floats held as one value or A pair of 16-bit floats held as one value or A pair of 32-bit floats held as one value, but got 'f16'}}
+  %0 = spyreop.exx2_fused %arg0 : f16 -> f16
+  return
+}
+
+// -----
+
+func.func @layernormscale_fused_plain_operand(%arg0: f16) {
+  // expected-error@+1 {{operand #0 must be A pair of df16 floats held as one value or A pair of 16-bit floats held as one value or A pair of 32-bit floats held as one value, but got 'f16'}}
+  %0 = spyreop.layernormscale_fused %arg0 : f16 -> f16
+  return
+}
+
+// -----
+
+// The result of the fused form is the pair of the operand, not a pair of
+// something else.
+func.func @exx2_fused_wrong_pair(%arg0: f16) {
+  // expected-error@+2 {{inferred type(s) '!spyreop.fp16_fused' are incompatible with return type(s) of operation '!spyreop.fp32_fused'}}
+  // expected-error@+1 {{failed to infer returned types}}
+  %0 = spyreop.exx2_fused %arg0 : f16 -> !spyreop.fp32_fused
+  return
+}
+
+// -----
+
+// And what comes out of the fused form is what the operand holds a pair of.
+func.func @layernormscale_fused_wrong_scalar(%arg0: !spyreop.fp16_fused) {
+  // expected-error@+2 {{inferred type(s) 'f16' are incompatible with return type(s) of operation 'f32'}}
+  // expected-error@+1 {{failed to infer returned types}}
+  %0 = spyreop.layernormscale_fused %arg0 : !spyreop.fp16_fused -> f32
+  return
+}
